@@ -134,7 +134,6 @@ def verify_otp():
                     session.pop('auth_email', None)
                     return redirect(url_for('index'))
                 else:
-                    # Trigger might still be running or failed, handle fallback
                     flash('Account created! Please login again if dashboard doesn\'t load.', 'info')
                     return redirect(url_for('login'))
         except Exception as e:
