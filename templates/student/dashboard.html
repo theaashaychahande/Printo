@@ -56,8 +56,8 @@
         </form>
     </div>
 
-    <!-- Job Status -->
-    <div class="card glass">
+    <!-- Recent Jobs -->
+    <div class="card glass mb-4">
         <h3 class="mb-4"><i class="fas fa-tasks text-primary"></i> Recent Jobs</h3>
         {% if jobs %}
         <div style="overflow-x: auto;">
@@ -95,6 +95,40 @@
         </div>
         {% else %}
         <p class="text-center text-light py-4">No print jobs yet. Upload a file to get started!</p>
+        {% endif %}
+    </div>
+
+    <!-- Top-up History -->
+    <div class="card glass">
+        <h3 class="mb-4"><i class="fas fa-history text-success"></i> Top-up History</h3>
+        {% if topup_history %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="text-align: left; border-bottom: 2px solid #eee;">
+                        <th style="padding: 1rem 0;">Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in topup_history %}
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 1rem 0; font-weight: 600;">₹{{ "%.2f"|format(item['amount']) }}</td>
+                        <td>
+                            <span style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase;"
+                                class="{% if item['status'] == 'approved' %}text-success{% elif item['status'] == 'pending' %}text-warning{% else %}text-light{% endif %}">
+                                {{ item['status'] }}
+                            </span>
+                        </td>
+                        <td class="text-sm text-light">{{ item['created_at'].strftime('%b %d, %I:%M %p') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center text-light py-4">No top-up history yet.</p>
         {% endif %}
     </div>
 </div>

@@ -19,7 +19,7 @@
     </div>
 
     <div class="admin-grid">
-        <!-- Top-up Requests -->
+        <!-- Top-up Requests (Existing Flow) -->
         <div class="card glass" style="grid-column: span 1;">
             <h3 class="mb-4"><i class="fas fa-money-bill-wave text-success"></i> Top-up Requests</h3>
             {% if topup_requests %}
@@ -29,13 +29,11 @@
                     style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #eee; border-radius: var(--radius-md); background: var(--bg);">
                     <div>
                         <p style="font-weight: 600;">₹{{ req['amount'] }}</p>
-                        <p class="text-sm text-light">{{ req['profiles']['email'].split('@')[0] }}</p>
+                        <p class="text-sm text-light">{{ req['profiles']['full_name'] or
+                            req['profiles']['email'].split('@')[0] }}</p>
                     </div>
                     <form action="{{ url_for('approve_topup', request_id=req['id']) }}" method="POST">
-                        <button type="submit" class="btn btn-primary btn-sm"
-                            style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
-                            Approve
-                        </button>
+                        <button type="submit" class="btn btn-primary btn-sm">Approve</button>
                     </form>
                 </div>
                 {% endfor %}
@@ -45,8 +43,49 @@
             {% endif %}
         </div>
 
-        <!-- Print Queue -->
+        <!-- Student Management (New Quick Top-up) -->
         <div class="card glass" style="grid-column: span 2;">
+            <h3 class="mb-4"><i class="fas fa-users text-primary"></i> Student Management</h3>
+            {% if students %}
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="text-align: left; border-bottom: 2px solid #eee;">
+                            <th style="padding: 1rem 0;">Name</th>
+                            <th>Email</th>
+                            <th>Balance</th>
+                            <th>Quick Top-up</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 1rem 0; font-weight: 600;">{{ student['full_name'] or 'N/A' }}</td>
+                            <td class="text-sm text-light">{{ student['email'] }}</td>
+                            <td style="font-weight: 700;">₹{{ student['wallets'][0]['balance'] if student['wallets']
+                                else '0.00' }}</td>
+                            <td>
+                                <form action="{{ url_for('quick_topup') }}" method="POST"
+                                    style="display: flex; gap: 0.5rem;">
+                                    <input type="hidden" name="user_id" value="{{ student['id'] }}">
+                                    <input type="number" name="amount" placeholder="Amt" step="1" min="1" required
+                                        style="width: 60px; padding: 0.2rem 0.4rem; font-size: 0.8rem;">
+                                    <button type="submit" class="btn btn-primary btn-sm"
+                                        style="padding: 0.2rem 0.6rem;">Add</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-center text-light py-4">No students registered yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Print Queue -->
+        <div class="card glass" style="grid-column: span 3;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                 <h3><i class="fas fa-stream text-primary"></i> Print Queue</h3>
                 {% if pending_jobs %}
@@ -79,13 +118,9 @@
                                     #{{ job['token_number'] }}
                                 </span>
                             </td>
-                            <td class="text-sm">{{ job['profiles']['email'].split('@')[0] }}</td>
-                            <td class="text-sm">
-                                <a href="{{ url_for('static', filename='../' + job['file_path']) }}" target="_blank"
-                                    style="color: var(--primary); text-decoration: none;">
-                                    <i class="fas fa-external-link-alt"></i> {{ job['filename'][:15] }}...
-                                </a>
-                            </td>
+                            <td class="text-sm">{{ job['profiles']['full_name'] or
+                                job['profiles']['email'].split('@')[0] }}</td>
+                            <td class="text-sm">{{ job['filename'][:20] }}...</td>
                             <td class="text-sm">
                                 {{ 'Color' if job['options']['color'] == 'color' else 'B&W' }} |
                                 {{ 'Double' if job['options']['sides'] == 'double' else 'Single' }} |
@@ -93,10 +128,7 @@
                             </td>
                             <td>
                                 <form action="{{ url_for('complete_job', job_id=job['id']) }}" method="POST">
-                                    <button type="submit" class="btn btn-primary btn-sm"
-                                        style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
-                                        Print Done
-                                    </button>
+                                    <button type="submit" class="btn btn-primary btn-sm">Done</button>
                                 </form>
                             </td>
                         </tr>
@@ -107,23 +139,6 @@
             {% else %}
             <p class="text-center text-light py-4">Queue is empty. Relax!</p>
             {% endif %}
-        </div>
-    </div>
-
-    <!-- Recent History -->
-    <div class="card glass mt-4">
-        <h3 class="mb-4"><i class="fas fa-history text-light"></i> Recent Activity</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
-            {% for job in recent_jobs %}
-            <div
-                style="padding: 0.75rem; border: 1px solid #eee; border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <span class="text-sm" style="font-weight: 600;">#{{ job['token_number'] }}</span>
-                    <p class="text-sm text-light">{{ job['profiles']['email'].split('@')[0] }}</p>
-                </div>
-                <span class="text-sm text-success" style="font-weight: 600;">Printed</span>
-            </div>
-            {% endfor %}
         </div>
     </div>
 </div>
