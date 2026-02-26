@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard - Printo{% endblock %}
+
+{% block content %}
+<div class="student-dashboard">
+    <!-- Wallet Card -->
+    <div class="card glass mb-4"
+        style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <p style="opacity: 0.9; font-size: 0.9rem;">Wallet Balance</p>
+                <h1 style="font-size: 2.5rem; font-weight: 800;">₹{{ "%.2f"|format(balance) }}</h1>
+            </div>
+            <a href="{{ url_for('topup_request') }}" class="btn"
+                style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4);">
+                <i class="fas fa-plus-circle"></i> Top-up
+            </a>
+        </div>
+    </div>
+
+    <!-- Print Form -->
+    <div class="card glass mb-4">
+        <h3 class="mb-4"><i class="fas fa-file-upload text-primary"></i> New Print Job</h3>
+        <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file">Upload File (PDF, DOC, Images)</label>
+                <input type="file" id="file" name="file" required
+                    style="padding: 2rem; border: 2px dashed #ddd; width: 100%; border-radius: var(--radius-md); text-align: center;">
+            </div>
+
+            <div class="admin-grid mb-4">
+                <div class="form-group">
+                    <label>Color Options</label>
+                    <select name="color">
+                        <option value="bw">Black & White (₹1/page)</option>
+                        <option value="color">Color (₹5/page)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Sides</label>
+                    <select name="sides">
+                        <option value="single">Single Sided</option>
+                        <option value="double">Double Sided</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Number of Copies</label>
+                    <input type="number" name="copies" value="1" min="1" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <i class="fas fa-print"></i> Generate Token & Pay
+            </button>
+        </form>
+    </div>
+
+    <!-- Job Status -->
+    <div class="card glass">
+        <h3 class="mb-4"><i class="fas fa-tasks text-primary"></i> Recent Jobs</h3>
+        {% if jobs %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="text-align: left; border-bottom: 2px solid #eee;">
+                        <th style="padding: 1rem 0;">Token</th>
+                        <th>Status</th>
+                        <th>Cost</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in jobs %}
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 1rem 0;">
+                            <span
+                                style="background: var(--bg); padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 700; font-family: monospace;">
+                                #{{ job['token_number'] }}
+                            </span>
+                        </td>
+                        <td>
+                            <span style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase;"
+                                class="
+                                    {% if job['status'] == 'queued' %}text-warning{% elif job['status'] == 'printed' %}text-success{% else %}text-light{% endif %}">
+                                {{ job['status'] }}
+                            </span>
+                        </td>
+                        <td>₹{{ job['cost'] }}</td>
+                        <td class="text-sm text-light">{{ job['created_at'].strftime('%I:%M %p') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center text-light py-4">No print jobs yet. Upload a file to get started!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
