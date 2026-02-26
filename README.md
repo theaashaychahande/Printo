@@ -1,4 +1,4 @@
-# Printo-
+# Printo
 
 > **A proprietary software project by [Aashay Chahande](https://github.com/theaashaychahande).**
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-Printo- is a privately developed software solution built to address a specific operational challenge within a defined domain. It is engineered for reliability, efficiency, and ease of use.
+Printo is a privately developed software solution built to address a specific operational challenge within a defined domain. It is engineered for reliability, efficiency, and ease of use.
 
 This project is closed-source and all rights are reserved by the author.
 
